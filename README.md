@@ -113,7 +113,7 @@ When dragging a virtual object (see the [`translate(_:basedOn:infinitePlane:)`](
 The sample code's [`objectInteracting(with:in:)`](x-source-tag://TouchTesting) method performs hit tests using the touch locations provided by gesture recognizers. By hit testing against the bounding boxes of the virtual objects, the method makes it more likely that a user touch will affect the object even if the touch location isn't on a point where the object has visible content. By performing multiple hit tests for multitouch gestures, the method makes it more likely that the user touch affects the intended object:
 
 **允许和虚拟物体交互时,手势的合理误差.**
-示例代码的[`objectInteracting(with:in:)`](x-source-tag://TouchTesting)方法使用手势识别器提供的触摸位置来执行点击测试.当点击测试遇到虚拟物体的边界盒子时,该方法让它看起来更像是用户的触摸影响了物体,即使实际的触摸位置并不在物体的可见内容上.通过为多指触摸手势执行多次点击测试,该方法让它看起来更像是用户触摸影响了实际物体:
+示例代码的[`objectInteracting(with:in:)`](x-source-tag://TouchTesting)方法使用手势识别器提供的触摸位置来执行命中测试.当命中测试遇到虚拟物体的边界盒子时,该方法让它看起来更像是用户的触摸影响了物体,即使实际的触摸位置并不在物体的可见内容上.通过为多指触摸手势执行多次命中测试,该方法让它看起来更像是用户触摸影响了实际物体:
 
 ``` swift
 for index in 0..<gesture.numberOfTouches {

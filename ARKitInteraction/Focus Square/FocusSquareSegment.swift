@@ -3,6 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 Corner segments for the focus square UI.
+ 聚焦框UI的边角线段
 */
 
 import SceneKit
@@ -11,6 +12,7 @@ extension FocusSquare {
 
     /*
     The focus square consists of eight segments as follows, which can be individually animated.
+     聚焦框包含了下面的八个线段,各个线段可以有单独的动画效果.
 
         s1  s2
         _   _
@@ -47,15 +49,18 @@ extension FocusSquare {
 
     class Segment: SCNNode {
 
-        // MARK: - Configuration & Initialization
+        // MARK: - Configuration & Initialization 配置&初始化
 
         /// Thickness of the focus square lines in m.
+        /// 聚焦框线段的线宽,单位是米.
         static let thickness: CGFloat = 0.018
 
         /// Length of the focus square lines in m.
+        /// 聚焦框线段的线长,单位是米
         static let length: CGFloat = 0.5  // segment length
 
         /// Side length of the focus square segments when it is open (w.r.t. to a 1x1 square).
+        /// 打开状态时聚焦框线段的边的长度
         static let openLength: CGFloat = 0.2
 
         let corner: Corner
@@ -88,7 +93,7 @@ extension FocusSquare {
             fatalError("\(#function) has not been implemented")
         }
 
-        // MARK: - Animating Open/Closed
+        // MARK: - Animating Open/Closed 开闭动画
 
         var openDirection: Direction {
             switch (corner, alignment) {

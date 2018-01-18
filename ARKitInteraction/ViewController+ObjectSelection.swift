@@ -3,6 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 Methods on the main view controller for handling virtual object loading and movement
+ 处理虚拟物体的加载和移动
 */
 
 import UIKit
@@ -13,7 +14,7 @@ extension ViewController: VirtualObjectSelectionViewControllerDelegate {
      Adds the specified virtual object to the scene, placed using
      the focus square's estimate of the world-space position
      currently corresponding to the center of the screen.
-     
+     添加虚拟物体到场景中,放置在聚焦框在真实世界中的根据屏幕中心得到的估计位置处.
      - Tag: PlaceVirtualObject
      */
     func placeVirtualObject(_ virtualObject: VirtualObject) {

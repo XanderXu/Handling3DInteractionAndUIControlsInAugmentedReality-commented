@@ -3,6 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 Utility class for showing messages above the AR view.
+ 在AR视图上展示信息的工具类
 */
 
 import Foundation
@@ -12,6 +13,7 @@ import ARKit
  Displayed at the top of the main interface of the app that allows users to see
  the status of the AR experience, as well as the ability to control restarting
  the experience altogether.
+ 显示在应用主界面的顶部,能让用户看到AR的状态,以及控制重启.
  - Tag: StatusViewController
 */
 class StatusViewController: UIViewController {
@@ -42,25 +44,30 @@ class StatusViewController: UIViewController {
     // MARK: - Properties
     
     /// Trigerred when the "Restart Experience" button is tapped.
+    /// 当"Restart Experience"按钮被点击时触发.
     var restartExperienceHandler: () -> Void = {}
     
     /// Seconds before the timer message should fade out. Adjust if the app needs longer transient messages.
+    /// 计时消息淡出前的显示时长.如果应用需要更长的临时消息,可以调整它.
     private let displayDuration: TimeInterval = 6
     
     // Timer for hiding messages.
+    // 隐藏消息的计时器
     private var messageHideTimer: Timer?
     
     private var timers: [MessageType: Timer] = [:]
     
-    // MARK: - Message Handling
+    // MARK: - Message Handling 消息处理
 	
 	func showMessage(_ text: String, autoHide: Bool = true) {
         // Cancel any previous hide timer.
+        // 取消所有先前的隐藏计时器.
         messageHideTimer?.invalidate()
 
         messageLabel.text = text
 
         // Make sure status is showing.
+        // 确保状态正在显示.
         setMessageHidden(false, animated: true)
 
         if autoHide {
@@ -121,10 +128,11 @@ class StatusViewController: UIViewController {
         restartExperienceHandler()
     }
 	
-	// MARK: - Panel Visibility
+	// MARK: - Panel Visibility 面板可见性
     
 	private func setMessageHidden(_ hide: Bool, animated: Bool) {
         // The panel starts out hidden, so show it before animating opacity.
+        // 面板刚启动时是隐藏的,在透明动画开始前,需要行显示出来.
         messagePanel.isHidden = false
         
         guard animated else {

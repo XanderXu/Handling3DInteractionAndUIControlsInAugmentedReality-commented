@@ -3,6 +3,7 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 ARSCNViewDelegate interactions for `ViewController`.
+ `ViewController`的ARSCNViewDelegate交互.
 */
 
 import ARKit
@@ -18,6 +19,7 @@ extension ViewController: ARSCNViewDelegate, ARSessionDelegate {
         }
         
         // If light estimation is enabled, update the intensity of the model's lights and the environment map
+        // 如果启用了光照估计,则更新模型中的光照强度和环境光图
         let baseIntensity: CGFloat = 40
         let lightingEnvironment = sceneView.scene.lightingEnvironment
         if let lightEstimate = session.currentFrame?.lightEstimate {
@@ -74,6 +76,7 @@ extension ViewController: ARSCNViewDelegate, ARSessionDelegate {
         ]
         
         // Use `flatMap(_:)` to remove optional error messages.
+        // 用`flatMap(_:)`来移除可选值
         let errorMessage = messages.flatMap({ $0 }).joined(separator: "\n")
         
         DispatchQueue.main.async {

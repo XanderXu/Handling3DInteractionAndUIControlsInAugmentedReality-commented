@@ -3,11 +3,12 @@ See LICENSE folder for this sample’s licensing information.
 
 Abstract:
 Popover view controller for choosing virtual objects to place in the AR scene.
+ 弹出控制器,用来在AR场景中选择虚拟物体来放置.
 */
 
 import UIKit
 
-// MARK: - ObjectCell
+// MARK: - ObjectCell 列表的cell
 
 class ObjectCell: UITableViewCell {
     static let reuseIdentifier = "ObjectCell"
@@ -26,18 +27,22 @@ class ObjectCell: UITableViewCell {
 // MARK: - VirtualObjectSelectionViewControllerDelegate
 
 /// A protocol for reporting which objects have been selected.
+/// 物体被选择或反选时的代理协议
 protocol VirtualObjectSelectionViewControllerDelegate: class {
     func virtualObjectSelectionViewController(_ selectionViewController: VirtualObjectSelectionViewController, didSelectObject: VirtualObject)
     func virtualObjectSelectionViewController(_ selectionViewController: VirtualObjectSelectionViewController, didDeselectObject: VirtualObject)
 }
 
 /// A custom table view controller to allow users to select `VirtualObject`s for placement in the scene.
+/// 自定义tableView控制器,允许用户在场景中选择`VirtualObject`来放置.
 class VirtualObjectSelectionViewController: UITableViewController {
     
     /// The collection of `VirtualObject`s to select from.
+    /// `VirtualObject`集合.
     var virtualObjects = [VirtualObject]()
     
     /// The rows of the currently selected `VirtualObject`s.
+    /// 当前已被选中的`VirtualObject`.
     var selectedVirtualObjectRows = IndexSet()
     
     weak var delegate: VirtualObjectSelectionViewControllerDelegate?
@@ -58,6 +63,7 @@ class VirtualObjectSelectionViewController: UITableViewController {
         let object = virtualObjects[indexPath.row]
         
         // Check if the current row is already selected, then deselect it.
+        // 检查当前行是否已被选中,已选中则取消选中.
         if selectedVirtualObjectRows.contains(indexPath.row) {
             delegate?.virtualObjectSelectionViewController(self, didDeselectObject: object)
         } else {
