@@ -1,5 +1,5 @@
 # Handling 3D Interaction and UI Controls in Augmented Reality
-# 处理虚拟现实中的3D交互和UI控制
+# 处理增强现实中的3D交互和UI控制
 
 Follow best practices for visual feedback, gesture interactions, and realistic rendering in AR experiences.
 
@@ -11,7 +11,7 @@ Follow best practices for visual feedback, gesture interactions, and realistic r
 
 Augmented reality (AR) offers new ways for users to interact with real and virtual 3D content in your app. However, many fundamental principles of human interface design are still valid. Convincing AR illusions also require careful attention to 3D asset design and rendering. The [iOS Human Interface Guidelines][0] include advice on human interface principles for AR. This project shows ways to apply those guidelines and easily create immersive, intuitive AR experiences.
 
-虚拟现实能在你的app中给用户提供现实与虚拟3D内容的新交互方式.然而,人机界面设计的基本原则仍然不够完善.逼真的AR幻景需要同时关注3D素材和渲染两方面. [iOS人机界面指南][0]包含了AR人机界面设计原则的建议.本项目展示了如何应用这些指南来轻松创造身临其境的AR体验.
+增强现实能在你的app中给用户提供现实与虚拟3D内容的新交互方式.然而,人机界面设计的基本原则仍然不够完善.逼真的AR幻景需要同时关注3D素材和渲染两方面. [iOS人机界面指南][0]包含了AR人机界面设计原则的建议.本项目展示了如何应用这些指南来轻松创造身临其境的AR体验.
 
 [0]:https://developer.apple.com/ios/human-interface-guidelines/technologies/augmented-reality/
 
@@ -21,7 +21,7 @@ This sample app provides a simple AR experience allowing a user to place one or 
 
 The sections below correspond to sections in [iOS Human Interface Guidelines > Augmented Reality][0], and provide details on how this sample app implements those guidelines. For more detailed reasoning on each section, see the corresponding content in the iOS Human Interface Guidelines.
 
-下面的章节对应于[iOS人机界面指南 > 虚拟现实][0],并详细解释了本示例程序是如何实现这些指南的.如需要各个章节更加详细的原理解释,请查看iOS人机界面指南中的对应内容.
+下面的章节对应于[iOS人机界面指南 > 增强现实][0],并详细解释了本示例程序是如何实现这些指南的.如需要各个章节更加详细的原理解释,请查看iOS人机界面指南中的对应内容.
 
 ## Getting Started
 ## 入门
@@ -202,7 +202,7 @@ The sample app supports this kind of gesture by calling its [`updateObjectToCurr
 本示例程序也支持这种手势,通过在拖拽手势过程中,持续调用它的[`updateObjectToCurrentTrackingPosition()`](x-source-tag://updateObjectToCurrentTrackingPosition)方法来实现,即使手势的触摸位置并没有改变.当设备在拖拽时发生移动,这个方法会计算新的世界坐标中的触摸位置,并相应地移动虚拟物体.
 
 ## Entering Augmented Reality
-## 进入虚拟现实
+## 进入增强现实
 
 **Indicate when initialization is occurring and involve the user.**
 The sample app shows textual hints about the state of the AR session and instructions for interacting with the AR experience using a floating text view. The sample code's [`StatusViewController`](x-source-tag://StatusViewController) class manages this view, showing transient instructions that fade away after allowing the user time to read them, or important status messages that remain visible until the user corrects a problem.
