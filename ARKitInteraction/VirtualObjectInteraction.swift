@@ -141,7 +141,7 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
             selectedObject = tappedObject
         } else if let object = selectedObject {
             // Teleport the object to whereever the user touched the screen.
-            // 将物体传送到用户触摸屏幕的地方.
+            // 将物体平移到用户触摸屏幕的地方.
             translate(object, basedOn: touchLocation, infinitePlane: false)
         }
     }
