@@ -43,7 +43,7 @@ class VirtualObjectARView: ARSCNView {
              --------------------------------------------
              direction dot planeNormal
              
-             从射线原点到与平面交点的距离公式是:横线代表分数线,点乘即点积/数量积
+             从射线原点到与平面交点的距离公式是:横线代表分数线,点乘即:点积,数量积
              (交点-射线原点)点乘(平面法线)
              -------------------------除以
              (方向)点乘(平面法线)
@@ -142,7 +142,7 @@ class VirtualObjectARView: ARSCNView {
         /*
          5. As a last resort, perform a second, unfiltered hit test against features.
             If there are no features in the scene, the result returned here will be nil.
-         5. 最后万不得已时,执行备份方案,未过虑的命中测试遇到的特征点.
+         5. 最后万不得已时,执行备份方案,返回未过滤的命中测试遇到的特征点.
             如果场景中没有特征点,返回结果将是nil.
         */
         let unfilteredFeatureHitTestResults = hitTestWithFeatures(position)

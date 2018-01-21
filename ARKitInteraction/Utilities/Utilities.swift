@@ -15,7 +15,7 @@ extension float4x4 {
     /**
      Treats matrix as a (right-hand column-major convention) transform matrix
      and factors out the translation component of the transform.
-     将一个矩阵(右手主序)视为平移矩阵,获取其平移组件.
+     将一个矩阵(右手主序)视为平移矩阵,获取其平移分量.
     */
     var translation: float3 {
         let translation = columns.3
