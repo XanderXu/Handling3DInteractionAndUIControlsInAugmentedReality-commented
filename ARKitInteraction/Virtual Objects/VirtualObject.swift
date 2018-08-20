@@ -22,12 +22,63 @@ class VirtualObject: SCNReferenceNode {
     /// 使用不久前虚拟物体距离的平均值,以避免在物体范围内快速变动.
     private var recentVirtualObjectDistances = [Float]()
     
-    /// Resets the objects poisition smoothing.
-    /// 平滑地重设物体位置.
+    /// Allowed alignments for the virtual object
+    var allowedAlignments: [ARPlaneAnchor.Alignment] {
+        if modelName == "sticky note" {
+            return [.horizontal, .vertical]
+        } else if modelName == "painting" {
+            return [.vertical]
+        } else {
+            return [.horizontal]
+        }
+    }
+    
+    /// Current alignment of the virtual object
+    var currentAlignment: ARPlaneAnchor.Alignment = .horizontal
+    
+    /// Whether the object is currently changing alignment
+    private var isChangingAlignment: Bool = false
+    
+    /// For correct rotation on horizontal and vertical surfaces, roate around
+    /// local y rather than world y. Therefore rotate first child node instead of self.
+    /// 对于水平表面和竖直表面的旋转来说,绕本地坐标y轴旋转,而不是世界坐标的y轴.因此旋转第一个节点而不是自己.
+    var objectRotation: Float {
+        get {
+            return childNodes.first!.eulerAngles.y
+        }
+        set (newValue) {
+            var normalized = newValue.truncatingRemainder(dividingBy: 2 * .pi)
+            normalized = (normalized + 2 * .pi).truncatingRemainder(dividingBy: 2 * .pi)
+            if normalized > .pi {
+                normalized -= 2 * .pi
+            }
+            childNodes.first!.eulerAngles.y = normalized
+            if currentAlignment == .horizontal {
+                rotationWhenAlignedHorizontally = normalized
+            }
+        }
+    }
+    
+    /// Remember the last rotation for horizontal alignment
+    var rotationWhenAlignedHorizontally: Float = 0
+    
+    /// The object's corresponding ARAnchor
+    var anchor: ARAnchor?
+    
+    /// Resets the object's position smoothing.
     func reset() {
         recentVirtualObjectDistances.removeAll()
     }
-	
+    
+    // MARK: - Helper methods to determine supported placement options
+    
+    func isPlacementValid(on planeAnchor: ARPlaneAnchor?) -> Bool {
+        if let anchor = planeAnchor {
+            return allowedAlignments.contains(anchor.alignment)
+        }
+        return true
+    }
+    
     /**
      Set the object's position based on the provided position relative to the `cameraTransform`.
      If `smoothMovement` is true, the new position will be averaged with previous position to
@@ -37,9 +88,13 @@ class VirtualObject: SCNReferenceNode {
      
      - Tag: VirtualObjectSetPosition
      */
-    func setPosition(_ newPosition: float3, relativeTo cameraTransform: matrix_float4x4, smoothMovement: Bool) {
+    func setTransform(_ newTransform: float4x4,
+                      relativeTo cameraTransform: float4x4,
+                      smoothMovement: Bool,
+                      alignment: ARPlaneAnchor.Alignment,
+                      allowAnimation: Bool) {
         let cameraWorldPosition = cameraTransform.translation
-        var positionOffsetFromCamera = newPosition - cameraWorldPosition
+        var positionOffsetFromCamera = newTransform.translation - cameraWorldPosition
         
         // Limit the distance of the object from the camera to a maximum of 10 meters.
         // 限制物体到摄像机的距离的最大值为10米.
@@ -69,10 +124,70 @@ class VirtualObject: SCNReferenceNode {
         } else {
             simdPosition = cameraWorldPosition + positionOffsetFromCamera
         }
+        
+        updateAlignment(to: alignment, transform: newTransform, allowAnimation: allowAnimation)
+    }
+    
+    // MARK: - Setting the object's alignment
+    
+    func updateAlignment(to newAlignment: ARPlaneAnchor.Alignment, transform: float4x4, allowAnimation: Bool) {
+        if isChangingAlignment {
+            return
+        }
+        
+        // Only animate if the alignment has changed.
+        // 当对齐方式改变时才执行动画.
+        let animationDuration = (newAlignment != currentAlignment && allowAnimation) ? 0.5 : 0
+        
+        var newObjectRotation: Float?
+        switch (newAlignment, currentAlignment) {
+        case (.horizontal, .horizontal):
+            // When placement remains horizontal, alignment doesn't need to be changed
+            // (unlike for vertical, where the surface's world-y-rotation might be different).
+            // 当放置方式保持水平,对齐方式无需改变(不像竖直时,平面的y轴旋转是不同的)
+            return
+        case (.horizontal, .vertical):
+            // When changing to horizontal placement, restore the previous horizontal rotation.
+            // 当变为水平放置时,储存先前的水平旋转状态.
+            newObjectRotation = rotationWhenAlignedHorizontally
+        case (.vertical, .horizontal):
+            // When changing to vertical placement, reset the object's rotation (y-up).
+            newObjectRotation = 0.0001
+        default:
+            break
+        }
+        
+        currentAlignment = newAlignment
+        
+        SCNTransaction.begin()
+        SCNTransaction.animationDuration = animationDuration
+        SCNTransaction.completionBlock = {
+            self.isChangingAlignment = false
+        }
+        
+        isChangingAlignment = true
+        
+        // Use the filtered position rather than the exact one from the transform.
+        // 使用过滤后的位置,不要用直接从transform中获取的值.
+        var mutableTransform = transform
+        mutableTransform.translation = simdWorldPosition
+        simdTransform = mutableTransform
+        
+        if newObjectRotation != nil {
+            objectRotation = newObjectRotation!
+        }
+        
+        SCNTransaction.commit()
     }
     
     /// - Tag: AdjustOntoPlaneAnchor
     func adjustOntoPlaneAnchor(_ anchor: ARPlaneAnchor, using node: SCNNode) {
+        // Test if the alignment of the plane is compatible with the object's allowed placement
+        // 测试平面的对齐方式是否和物体放置方式兼容.
+        if !allowedAlignments.contains(anchor.alignment) {
+            return
+        }
+        
         // Get the object's position in the plane's coordinate system.
         // 得到物体在平面坐标系统中的位置.
         let planePosition = node.convertPosition(position, from: parent)
@@ -104,6 +219,7 @@ class VirtualObject: SCNReferenceNode {
             SCNTransaction.animationDuration = CFTimeInterval(distanceToPlane * 500) // Move 2 mm per second.每秒移动2毫米
             SCNTransaction.animationTimingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
             position.y = anchor.transform.columns.3.y
+            updateAlignment(to: anchor.alignment, transform: simdWorldTransform, allowAnimation: false)
             SCNTransaction.commit()
         }
     }
@@ -119,10 +235,10 @@ extension VirtualObject {
 
         let fileEnumerator = FileManager().enumerator(at: modelsURL, includingPropertiesForKeys: [])!
 
-        return fileEnumerator.flatMap { element in
+        return fileEnumerator.compactMap { element in
             let url = element as! URL
 
-            guard url.pathExtension == "scn" else { return nil }
+            guard url.pathExtension == "scn" && !url.path.contains("lighting") else { return nil }
 
             return VirtualObject(url: url)
         }
@@ -143,7 +259,7 @@ extension VirtualObject {
     }
 }
 
-extension Collection where Iterator.Element == Float, IndexDistance == Int {
+extension Collection where Element == Float, Index == Int {
     /// Return the mean of a list of Floats. Used with `recentVirtualObjectDistances`.
     /// 返回Floats列表的平均数.用在recentVirtualObjectDistances`.
     var average: Float? {

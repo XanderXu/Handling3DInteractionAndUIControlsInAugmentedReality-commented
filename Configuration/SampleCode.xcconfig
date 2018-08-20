@@ -1,5 +1,7 @@
 //
-//  SampleCode.xcconfig
+// See LICENSE folder for this sample’s licensing information.
+//
+// SampleCode.xcconfig
 //
 
 // The `SAMPLE_CODE_DISAMBIGUATOR` configuration is to make it easier to build

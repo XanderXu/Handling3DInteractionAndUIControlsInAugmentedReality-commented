@@ -15,11 +15,11 @@ import ARKit
  在后台队列中加载多个`VirtualObject`,在需要展示物体的时候能快速显示出来.
 */
 class VirtualObjectLoader {
-	private(set) var loadedObjects = [VirtualObject]()
+    private(set) var loadedObjects = [VirtualObject]()
     
     private(set) var isLoading = false
-	
-	// MARK: - Loading object 加载物体
+    
+    // MARK: - Loading object 加载物体
 
     /**
      Loads a `VirtualObject` on a background queue. `loadedHandler` is invoked
@@ -28,23 +28,23 @@ class VirtualObjectLoader {
     */
     func loadVirtualObject(_ object: VirtualObject, loadedHandler: @escaping (VirtualObject) -> Void) {
         isLoading = true
-		loadedObjects.append(object)
-		
-		// Load the content asynchronously.
+        loadedObjects.append(object)
+        
+        // Load the content asynchronously.
         // 异步加载内容.
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .background).async {
             object.reset()
             object.load()
 
             self.isLoading = false
             loadedHandler(object)
         }
-	}
+    }
     
     // MARK: - Removing Objects 移除物体
     
     func removeAllVirtualObjects() {
-        // Reverse the indicies so we don't trample over indicies as objects are removed.
+        // Reverse the indices so we don't trample over indices as objects are removed.
         // 反转索引序号,这样移除物体时索引序号不用改变.
         for index in loadedObjects.indices.reversed() {
             removeVirtualObject(at: index)

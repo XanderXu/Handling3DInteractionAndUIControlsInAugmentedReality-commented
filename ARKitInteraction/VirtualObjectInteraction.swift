@@ -88,6 +88,12 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
             // 忽略拖拽手势的变化,直到位移超过阈值
             break
             
+        case .ended:
+            // Update the object's anchor when the gesture ended.
+            guard let existingTrackedObject = trackedObject else { break }
+            sceneView.addOrUpdateAnchor(for: existingTrackedObject)
+            fallthrough
+            
         default:
             // Clear the current position tracking.
             // 消除当前位置追踪
@@ -110,7 +116,7 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
     @objc
     func updateObjectToCurrentTrackingPosition() {
         guard let object = trackedObject, let position = currentTrackingPosition else { return }
-        translate(object, basedOn: position, infinitePlane: translateAssumingInfinitePlane)
+        translate(object, basedOn: position, infinitePlane: translateAssumingInfinitePlane, allowAnimation: true)
     }
 
     /// - Tag: didRotate
@@ -126,7 +132,7 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
          一般我们是俯视物体的(99%的情况下),所以旋转时需要减去一个角度,朝负方向旋转.
          为了让仰视物体时旋转方向也是正确的,我们需要根据摄像机相对物体的高低来反转角度的正负号.
          */
-        trackedObject?.eulerAngles.y -= Float(gesture.rotation)
+        trackedObject?.objectRotation -= Float(gesture.rotation)
         
         gesture.rotation = 0
     }
@@ -142,7 +148,8 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
         } else if let object = selectedObject {
             // Teleport the object to whereever the user touched the screen.
             // 将物体平移到用户触摸屏幕的地方.
-            translate(object, basedOn: touchLocation, infinitePlane: false)
+            translate(object, basedOn: touchLocation, infinitePlane: false, allowAnimation: false)
+            sceneView.addOrUpdateAnchor(for: object)
         }
     }
     
@@ -174,18 +181,36 @@ class VirtualObjectInteraction: NSObject, UIGestureRecognizerDelegate {
     // MARK: - Update object position 更新物体位置
 
     /// - Tag: DragVirtualObject
-    private func translate(_ object: VirtualObject, basedOn screenPos: CGPoint, infinitePlane: Bool) {
+    func translate(_ object: VirtualObject, basedOn screenPos: CGPoint, infinitePlane: Bool, allowAnimation: Bool) {
         guard let cameraTransform = sceneView.session.currentFrame?.camera.transform,
-            let (position, _, isOnPlane) = sceneView.worldPosition(fromScreenPosition: screenPos,
-                                                                   objectPosition: object.simdPosition,
-                                                                   infinitePlane: infinitePlane) else { return }
+            let result = sceneView.smartHitTest(screenPos,
+                                                infinitePlane: infinitePlane,
+                                                objectPosition: object.simdWorldPosition,
+                                                allowedAlignments: object.allowedAlignments) else { return }
         
+        let planeAlignment: ARPlaneAnchor.Alignment
+        if let planeAnchor = result.anchor as? ARPlaneAnchor {
+            planeAlignment = planeAnchor.alignment
+        } else if result.type == .estimatedHorizontalPlane {
+            planeAlignment = .horizontal
+        } else if result.type == .estimatedVerticalPlane {
+            planeAlignment = .vertical
+        } else {
+            return
+        }
+
         /*
          Plane hit test results are generally smooth. If we did *not* hit a plane,
          smooth the movement to prevent large jumps.
          平面的命中测试结果是相当平滑的.如果我们*没有*碰到平面,则需要平滑移动,防止大的跳动.
          */
-        object.setPosition(position, relativeTo: cameraTransform, smoothMovement: !isOnPlane)
+        let transform = result.worldTransform
+        let isOnPlane = result.anchor is ARPlaneAnchor
+        object.setTransform(transform,
+                            relativeTo: cameraTransform,
+                            smoothMovement: !isOnPlane,
+                            alignment: planeAlignment,
+                            allowAnimation: allowAnimation)
     }
 }
 

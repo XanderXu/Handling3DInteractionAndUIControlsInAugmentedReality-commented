@@ -83,6 +83,7 @@ extension ViewController: UIPopoverPresentationControllerDelegate {
         let objectsViewController = segue.destination as! VirtualObjectSelectionViewController
         objectsViewController.virtualObjects = VirtualObject.availableObjects
         objectsViewController.delegate = self
+        self.objectsViewController = objectsViewController
         
         // Set all rows of currently placed objects to selected.
         // 将所有已被放置的物体设为选中状态
@@ -92,4 +93,7 @@ extension ViewController: UIPopoverPresentationControllerDelegate {
         }
     }
     
+    func popoverPresentationControllerDidDismissPopover(_ popoverPresentationController: UIPopoverPresentationController) {
+        objectsViewController = nil
+    }
 }
